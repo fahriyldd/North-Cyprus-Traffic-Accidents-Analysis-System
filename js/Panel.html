@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Data Add Panel</title>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta content="" name="keywords">
+  <meta content="" name="description">
+
+  <!-- Favicon -->
+  <link href="img/neu-logo (1).png" rel="icon">
+
+  <!-- Google Web Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Icon Font Stylesheet -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Libraries Stylesheet -->
+  <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+  <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+  <!-- Customized Bootstrap Stylesheet -->
+  <link href="css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Template Stylesheet -->
+  <link href="css/style.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+</head>
+
+<body>
+
+  <div id="app" class="container-fluid position-relative d-flex p-0">
+    <!-- Spinner Start -->
+    <div id="spinner"
+      class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+      <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+        <span class="sr-only">Loading...</span>
+      </div>
+    </div>
+    <!-- Spinner End -->
+
+    <!-- Content Start -->
+    <div class="content open">
+      <!-- Navbar Start -->
+
+
+
+      <!-- Blank Start -->
+      <div class="container-fluid pt-4 px-4">
+        <div class="row vh-100 bg-secondary rounded align-items-center justify-content-center mx-0">
+          <div class="col-sm-12 col-xl-6">
+            <div class="bg-secondary rounded h-100 p-4 add-input">
+
+              <div class="form-floating mb-3">
+                <select v-model="weather" class="form-select" id="floatingSelect"
+                  aria-label="Floating label select example">
+                  <option value="Sunny">Sunny</option>
+                  <option value="Rainy">Rainy</option>
+                  <option value="Cloudy">Cloudy</option>
+                  <option value="Windy">Windy</option>
+                </select>
+                <label for="floatingSelect">Weather</label>
+              </div>
+              <div class="form-floating mb-3">
+                <select v-model="road" class="form-select" id="road">
+                  <option value="Wet">Wet</option>
+                  <option value="Dry">Dry</option>
+                  <option value="Good">Good</option>
+                  <option value="Damaged">Damaged</option>
+                </select>
+                <label for="road">Road Status</label>
+              </div>
+              <div class="form-floating mb-3">
+                <select v-model="year" class="form-select" id="year">
+                  <option value="2023">2023</option>
+                  <option value="2024">2024</option>
+                </select>
+                <label for="year">Year</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input v-model="month" type="number" min="1" max="12" class="form-control" id="month"
+                  placeholder="Month">
+                <label for="month">Month</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input v-model="day" type="number" min="1" max="31" class="form-control" id="day"
+                  placeholder="Day">
+                <label for="day">Day</label>
+              </div>
+              <div class="form-floating mb-3">
+                <select v-model="city" class="form-select" id="floatingSelect3">
+                  <option value="Nicosia">Nicosia</option>
+                  <option value="Magusa">Magusa</option>
+                  <option value="Gönyeli">Gönyeli</option>
+                  <option value="Güzelyurt">Güzelyurt</option>
+                  <option value="Lefke">Lefke</option>
+                </select>
+                <label for="floatingSelect3">City</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input v-model="death" type="number" class="form-control" id="death" placeholder="Day">
+                <label for="death">Number of Death</label>
+              </div>
+              <div class="form-floating">
+                <textarea v-model="reason" class="form-control" placeholder="Leave a comment here" id="reason"
+                  style="height: 150px;"></textarea>
+                <label for="reason">Reasons</label>
+              </div>
+              <div>
+                <button @click="AddAccident()" class="btn btn-info rounded-pill m-2">Add</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+    import { getStorage, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js";
+    //import { getFirestore, collection, doc, getDocs  } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+    import { getDatabase, ref, set, onValue, get, child, push, update, remove } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCE89QV4uy9N4bQf1nGsjg2S5kV6GMWp98",
+      authDomain: "accidents-1115d.firebaseapp.com",
+      projectId: "accidents-1115d",
+      storageBucket: "accidents-1115d.appspot.com",
+      messagingSenderId: "234544180026",
+      appId: "1:234544180026:web:f3d8bfb4f82623f016be03",
+      measurementId: "G-VJBYLTRM2N"
+    };
+
+    const App = initializeApp(firebaseConfig);
+    const storage = getStorage(App);
+    const db = getDatabase(App);
+
+    var app = new Vue({
+      el: '#app',
+      data: {
+        weather: "",
+        road: "",
+        year: "",
+        month: 1,
+        day: 1,
+        city: "",
+        death: 0,
+        reason: "",
+      },
+      mounted() {
+
+        get(child(ref(db), "Accidents/")).then((snap) => {
+          if (snap.exists()) {
+            console.log(snap.val());
+          } else {
+            console.log("No data available");
+          }
+        }).catch((error) => {
+          console.error(error);
+        });
+
+      },
+      methods: {
+        AddAccident() {
+
+
+          var result = confirm("Are you sure you want to proceed?");
+
+          if (result && this.weather !== "" && this.road !== "" && this.month >= 0 && this.day >= 0 && this.reason !== "" && this.year !== "") {
+            push(ref(db, 'Accidents/' + this.year + '/' + this.month + '/' + this.day), {
+              weather: this.weather,
+              road: this.road,
+              year: this.year,
+              month: this.month,
+              city: this.city,
+              day: this.day,
+              death: this.death,
+              reason: this.reason,
+            });
+
+          } else {
+            // If user clicks "Cancel", do nothing or provide feedback
+            alert("Action canceled!");
+          }
+
+          this.weather = "";
+          this.road = "";
+          this.year = "";
+          this.month = 1;
+          this.city = "";
+          this.day = 1;
+          this.death = 0;
+          this.reason = "";
+
+        },
+      }
+    })
+
+
+  </script>
+
+
+  <!-- JavaScript Libraries -->
+  <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="lib/chart/chart.min.js"></script>
+  <script src="lib/easing/easing.min.js"></script>
+  <script src="lib/waypoints/waypoints.min.js"></script>
+  <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+  <script src="lib/tempusdominus/js/moment.min.js"></script>
+  <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+  <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+  <!-- Template Javascript -->
+  <script src="js/main.js"></script>
+</body>
+
+</html>

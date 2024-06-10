@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title></title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Favicon -->
+    <link href="img/neu-logo (1).png" rel="icon">
+
+    <!-- Google Web Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&family=Roboto:wght@500;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Icon Font Stylesheet -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Libraries Stylesheet -->
+    <link href="lib/owlcarousel/assets/owl.carousel.min.css" rel="stylesheet">
+    <link href="lib/tempusdominus/css/tempusdominus-bootstrap-4.min.css" rel="stylesheet" />
+
+    <!-- Customized Bootstrap Stylesheet -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container-fluid position-relative d-flex p-0">
+
+        <div id="spinner"
+            class="show bg-dark position-fixed translate-middle w-100 vh-100 top-50 start-50 d-flex align-items-center justify-content-center">
+            <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+
+        <div id="app" class="content open">
+
+            <nav class="navbar navbar-expand bg-secondary navbar-dark sticky-top px-4 py-0">
+                <img src="img/air-logo (1).png" style="margin: 10px; width: 280px;" alt="">
+                <div class="navbar-nav align-items-center ms-auto"></div>
+            </nav>
+
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <div class="col-sm-6 col-xl-6">
+                        <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fas fa-car-crash fa-3x text-light"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Total Accidents</p>
+                                <h6 class="mb-0">{{totalAccidents}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-6 col-xl-6">
+                        <div class="bg-secondary rounded d-flex align-items-center justify-content-between p-4">
+                            <i class="fas fa-user-circle fa-3x text-light"></i>
+                            <div class="ms-3">
+                                <p class="mb-2">Total Deaths</p>
+                                <h6 class="mb-0">{{totalDeath}}</h6>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container-fluid pt-4 px-4">
+                <div class="row g-4">
+                    <div class="col-sm-12 col-xl-6">
+                        <div class="bg-secondary rounded p-4">
+                            <div class="add-input">
+                                <div class="form-floating mb-3">
+                                    <select v-model="SelectedYear" class="form-select" id="year">
+                                        <option value="2023">2023</option>
+                                        <option value="2024">2024</option>
+                                    </select>
+                                    <label for="year">Year</label>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input v-model="SelectedMonth" type="number" min="1" max="12" class="form-control"
+                                        id="month" placeholder="Month">
+                                    <label for="month">Month</label>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <input v-model="SelectedDay" type="number" min="1" max="31" class="form-control"
+                                        id="day" placeholder="Day">
+                                    <label for="day">Day</label>
+                                </div>
+                                <div class="form-floating mb-3">
+                                    <select @change="clear()" v-model="SelectedCity" class="form-select"
+                                        id="floatingSelect3">
+                                        <option value="1">Select</option>
+                                        <option value="Nicosia">Nicosia</option>
+                                        <option value="Magusa">Magusa</option>
+                                        <option value="Gönyeli">Gönyeli</option>
+                                        <option value="Güzelyurt">Güzelyurt</option>
+                                        <option value="Lefke">Lefke</option>
+                                    </select>
+                                    <label for="floatingSelect3">City</label>
+                                </div>
+                                <div>
+                                    <button @click="Filter()"
+                                        class="btn btn-info rounded-pill m-2 float-left">Filter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-xl-6">
+                        <div class="bg-secondary text-center rounded p-4"
+                            style="overflow-y: scroll; max-height: 398px;">
+                            <div class="d-flex align-items-center justify-content-between mb-4">
+                                <h6 class="mb-0">Filteded Accidents</h6>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table text-start align-middle table-bordered table-hover mb-0">
+                                    <thead>
+                                        <tr class="text-white">
+                                            <th scope="col">Date</th>
+                                            <th scope="col">City</th>
+                                            <th scope="col">Weather</th>
+                                            <th scope="col">Road</th>
+                                            <th scope="col">Death</th>
+                                            <th scope="col"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody v-if="SelectedCity == ''">
+                                        <tr v-for="(val,id) in filteredAccidents[0]" :key="id">
+                                            <td>{{val.year}} / {{val.month}} / {{val.day}}</td>
+                                            <td>{{val.city}}</td>
+                                            <td>{{val.weather}}</td>
+                                            <td v-if="val.road =='Good'"><span class="good-road">{{val.road}}</span>
+                                            </td>
+                                            <td v-if="val.road =='Damaged'"><span class="bad-road">{{val.road}}</span>
+                                            </td>
+                                            <td v-if="val.road !=='Good' && val.road !=='Damaged'"><span
+                                                    class="other-road">{{val.road}}</span></td>
+                                            <td>{{val.death}}</td>
+                                            <td><button @click="showDetails(val.reason)"
+                                                    class="btn btn-info rounded-pill m-2 float-left">Detail</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+                                    <tbody v-if="SelectedCity !== ''">
+                                        <tr v-for="(val,id) in filteredAccidents" :key="id">
+                                            <td>{{val.year}} / {{val.month}} / {{val.day}}</td>
+                                            <td>{{val.city}}</td>
+                                            <td>{{val.weather}}</td>
+                                            <td v-if="val.road =='Good'"><span class="good-road">{{val.road}}</span>
+                                            </td>
+                                            <td v-if="val.road =='Damaged'"><span class="bad-road">{{val.road}}</span>
+                                            </td>
+                                            <td v-if="val.road !=='Good' && val.road !=='Damaged'"><span
+                                                    class="other-road">{{val.road}}</span></td>
+                                            <td>{{val.death}}</td>
+                                            <td><button @click="showDetails(val.reason)"
+                                                    class="btn btn-info rounded-pill m-2 float-left">Detail</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <!-- Recent Accidents Start -->
+            <div class="container-fluid pt-4 px-4" style="margin-bottom: 15px;">
+                <div class="bg-secondary text-center rounded p-4" style="overflow-y: scroll; max-height: 270px;">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+                        <h6 class="mb-0">Recent Accidents</h6>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table text-start align-middle table-bordered table-hover mb-0">
+                            <thead>
+                                <tr class="text-white">
+                                    <th scope="col">Date</th>
+                                    <th scope="col">City</th>
+                                    <th scope="col">Weather</th>
+                                    <th scope="col">Road</th>
+                                    <th scope="col">Death</th>
+                                </tr>
+                            </thead>
+                            <tbody v-for="(val,id) in lastMonth[lastAccidents]" :key="id">
+                                <tr v-for="(val, id) in val" :key="id">
+                                    <td>{{val.year}} / {{val.month}} / {{val.day}}</td>
+                                    <td>{{val.city}}</td>
+                                    <td>{{val.weather}}</td>
+                                    <td v-if="val.road =='Good'"><span class="good-road">{{val.road}}</span></td>
+                                    <td v-if="val.road =='Damaged'"><span class="bad-road">{{val.road}}</span></td>
+                                    <td v-if="val.road !=='Good' && val.road !=='Damaged'"><span
+                                            class="other-road">{{val.road}}</span></td>
+                                    <td>{{val.death}}</td>
+                                    <td><button @click="showDetails(val.reason)"
+                                            class="btn btn-info rounded-pill m-2 float-left">Detail</button></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="modalStatus" class="modal-bg">
+                <div class="modal-container">
+                    <div class="modal-head">
+                        <p @click="closeModal()" class="close-btn">x</p>
+
+                    </div>
+                    <div class="modal-body">
+                        <p>{{modalText}}</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- JavaScript Libraries -->
+        <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="lib/chart/chart.min.js"></script>
+        <script src="lib/easing/easing.min.js"></script>
+        <script src="lib/waypoints/waypoints.min.js"></script>
+        <script src="lib/owlcarousel/owl.carousel.min.js"></script>
+        <script src="lib/tempusdominus/js/moment.min.js"></script>
+        <script src="lib/tempusdominus/js/moment-timezone.min.js"></script>
+        <script src="lib/tempusdominus/js/tempusdominus-bootstrap-4.min.js"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
+
+        <!-- Template Javascript -->
+        <script src="js/main.js"></script>
+
+
+        <script type="module">
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-app.js";
+            import { getStorage, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-storage.js";
+            //import { getFirestore, collection, doc, getDocs  } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-firestore.js";
+            import { getDatabase, ref, set, onValue, get, child, push, update, remove } from "https://www.gstatic.com/firebasejs/10.5.2/firebase-database.js";
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyCE89QV4uy9N4bQf1nGsjg2S5kV6GMWp98",
+                authDomain: "accidents-1115d.firebaseapp.com",
+                projectId: "accidents-1115d",
+                storageBucket: "accidents-1115d.appspot.com",
+                messagingSenderId: "234544180026",
+                appId: "1:234544180026:web:f3d8bfb4f82623f016be03",
+                measurementId: "G-VJBYLTRM2N"
+            };
+
+            const App = initializeApp(firebaseConfig);
+            const storage = getStorage(App);
+            const db = getDatabase(App);
+
+            var app = new Vue({
+                el: '#app',
+                data: {
+                    All: [],
+                    Last: [],
+                    lastMonth: [],
+                    lastAccidents: 0,
+
+                    filteredAccidents: [],
+                    SelectedYear: "",
+                    SelectedMonth: "",
+                    SelectedDay: "",
+                    SelectedCity: "",
+
+                    modalStatus: false,
+                    modalText: "",
+                    totalDeath: 0,
+                    totalAccidents: 0,
+                },
+                mounted() {
+
+                    get(child(ref(db), "Accidents/2024")).then((snap) => {
+                        if (snap.exists()) {
+                            this.All.push(snap.val());
+                            console.log(this.All)
+                            for (let i = 0; i < this.All[0].length; i++) {
+
+                                // console.log(this.All[0][i])
+
+                                for (let e in this.All[0][i]) {
+
+                                    // console.log(this.All[0][i][e])
+
+                                    for (let j in this.All[0][i][e]) {
+                                        // console.log(this.All[0][i][e][j])
+                                        this.totalAccidents += 1;
+                                        this.totalDeath += parseInt(this.All[0][i][e][j].death, 10);
+                                    }
+                                }
+
+                            }
+                            // console.log(this.totalDeath)
+                        } else {
+                            console.log("No data available");
+                        }
+                    }).catch((error) => {
+                        console.error(error);
+                    });
+
+                    get(child(ref(db), "Accidents/2024")).then((snap) => {
+                        if (snap.exists()) {
+                            this.Last.push(snap.val());
+                            this.lastMonth = this.Last[0]
+                            this.lastAccidents = this.Last[0].length - 1
+
+                        } else {
+                            console.log("No data available");
+                        }
+                    }).catch((error) => {
+                        console.error(error);
+                    });
+
+                },
+                methods: {
+                    Filter() {
+
+                        if (this.SelectedCity == '1') {
+                            this.SelectedCity = ''
+                        }
+
+                        if (this.SelectedCity == '') {
+                            if (this.SelectedYear == '2023') {
+                                this.filteredAccidents = []
+                                get(child(ref(db), "Accidents/2023/" + this.SelectedMonth + "/" + this.SelectedDay)).then((snap) => {
+                                    if (snap.exists()) {
+                                        this.filteredAccidents.push(snap.val());
+                                    } else {
+                                        alert("No data available");
+                                    }
+                                })
+
+                            } else {
+                                this.filteredAccidents = []
+                                get(child(ref(db), "Accidents/2024/" + this.SelectedMonth + "/" + this.SelectedDay)).then((snap) => {
+                                    if (snap.exists()) {
+                                        this.filteredAccidents.push(snap.val());
+                                    } else {
+                                        alert("No data available");
+                                    }
+                                })
+                            }
+                        } else {
+
+                            if (this.SelectedYear == '2023') {
+
+                                get(child(ref(db), "Accidents/2023/" + this.SelectedMonth + "/" + this.SelectedDay)).then((snap) => {
+                                    this.filteredAccidents = []
+                                    if (snap.exists()) {
+                                        for (let i in snap.val()) {
+                                            if (snap.val()[i].city == this.SelectedCity) {
+                                                this.filteredAccidents.push(snap.val()[i]);
+                                            }
+                                        }
+
+                                    } else {
+                                        alert("No data available");
+                                    }
+                                })
+
+                            } else {
+                                get(child(ref(db), "Accidents/2024/" + this.SelectedMonth + "/" + this.SelectedDay)).then((snap) => {
+                                    this.filteredAccidents = []
+                                    if (snap.exists()) {
+                                        for (let i in snap.val()) {
+                                            if (snap.val()[i].city == this.SelectedCity) {
+                                                this.filteredAccidents.push(snap.val()[i]);
+                                            }
+                                        }
+
+                                    } else {
+                                        alert("No data available");
+                                    }
+                                })
+                            }
+                        }
+
+                    },
+                    clear() {
+
+                    },
+                    showDetails(a) {
+                        this.modalText = a;
+                        this.modalStatus = true;
+                    },
+                    closeModal() {
+                        this.modalStatus = false;
+                    }
+                }
+            })
+
+
+        </script>
+</body>
+
+</html>
